@@ -51,6 +51,19 @@
     return tweet.innerText.trim();
   }
 
+  // Text the user has already typed into the reply/compose editor. Used when
+  // there is no tweet to reply to (composing an original post) so the AI can
+  // enhance the user's own draft instead of replying to someone else.
+  function getDraftText() {
+    const editor = document.querySelector(
+      'div[data-testid="tweetTextarea_0"][contenteditable="true"]',
+    );
+
+    if (!editor) return "";
+
+    return editor.innerText.trim();
+  }
+
   function createCustomToolbar(nativeToolbar) {
     const toolbar = document.createElement("div");
     toolbar.className = "my-custom-x-toolbar";
@@ -68,11 +81,24 @@
       { id: "joke", label: "Joke", icon: ICONS.joke },
       { id: "idea", label: "Idea", icon: ICONS.idea },
       { id: "disagree", label: "Disagree", icon: ICONS.disagree },
-      { id: "Question", label: "Question", icon: ICONS.question },
+      { id: "question", label: "Question", icon: ICONS.question },
     ];
+
+    // Track every button so we can disable them all while one is generating.
+    const allButtons = [];
+
+    // Enable/disable all buttons at once (issue: disable all options while generating).
+    function setButtonsDisabled(disabled) {
+      allButtons.forEach((b) => {
+        b.disabled = disabled;
+        b.style.opacity = disabled ? "0.6" : "1";
+        b.style.cursor = disabled ? "not-allowed" : "pointer";
+      });
+    }
 
     buttons.forEach((data) => {
       const btn = document.createElement("button");
+      allButtons.push(btn);
 
       btn.className = "my-x-btn";
 
@@ -100,9 +126,12 @@
       btn.onclick = async (e) => {
         e.preventDefault();
 
+        if (btn.disabled) return;
+
         const originalHTML = btn.innerHTML; // speichere das Original-Icon+Label
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
+
+        // Disable ALL buttons while generating so only one request runs at a time.
+        setButtonsDisabled(true);
 
         // Lade-Animation anzeigen
         btn.innerHTML = `<span class="spinner" style="
@@ -130,15 +159,19 @@
         }
 
         const tweetText = getTweetText(nativeToolbar);
+        // No tweet to reply to → enhance the user's own draft instead.
+        const draftText = tweetText ? "" : getDraftText();
 
-        const aiText = await requestAI(data.id, tweetText);
-
-        insertTextIntoReply(aiText);
-
-        // Button wiederherstellen
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
-        btn.style.opacity = "1";
+        try {
+          const aiText = await requestAI(data.id, tweetText, draftText);
+          insertTextIntoReply(aiText);
+        } catch (err) {
+          console.error("AI request failed:", err);
+        } finally {
+          // Button-Text wiederherstellen und alle Buttons reaktivieren.
+          btn.innerHTML = originalHTML;
+          setButtonsDisabled(false);
+        }
       };
 
       toolbar.appendChild(btn);
@@ -175,10 +208,11 @@
   injectToolbar();
 })();
 
-async function requestAI(action, tweetText) {
+async function requestAI(action, tweetText, draftText) {
   const payload = {
     action: action,
     tweet: tweetText,
+    draft: draftText || "",
     url: window.location.href,
   };
 
