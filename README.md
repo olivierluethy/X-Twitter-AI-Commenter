@@ -1,4 +1,17 @@
-# GhostReply AI
+<div align="center">
+  <img src="logo.png" alt="GhostReply AI logo" width="140" />
+  <h1>GhostReply AI</h1>
+  <p><b>One-click, AI-generated replies and quote-posts for X / Twitter.</b><br/>A Manifest V3 Chrome extension that drafts tone-tailored comments with GPT-4 via a small PHP proxy that keeps your API key off the client.</p>
+  <p>
+    <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+    <img alt="Manifest V3" src="https://img.shields.io/badge/Manifest-V3-4285F4?logo=googlechrome&logoColor=white">
+    <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-vanilla-F7DF1E?logo=javascript&logoColor=black">
+    <img alt="PHP" src="https://img.shields.io/badge/PHP-proxy-777BB4?logo=php&logoColor=white">
+    <img alt="GPT-4" src="https://img.shields.io/badge/OpenAI-GPT--4-412991?logo=openai&logoColor=white">
+  </p>
+</div>
+
+---
 
 A Chrome extension (Manifest V3) that adds one-click, AI-generated **replies and
 quote-posts** to X / Twitter. Open a reply box, pick a tone, and GhostReply drafts a
@@ -47,3 +60,13 @@ Point `content.js` at your endpoint if you are not using the default host.
 
 Automating engagement may conflict with X's Terms of Service. Use responsibly and at your
 own risk.
+
+
+## License
+
+Released under the [MIT License](LICENSE) © 2026 Olivier Lüthy. You're free to use, modify and distribute this
+software, including commercially, as long as the copyright notice and license are included.
+
+## Author
+
+Built by **Olivier Lüthy** — [GitHub](https://github.com/olivierluethy).
